@@ -60,7 +60,7 @@ defmodule Runtime.Config.Helper do
   ]
 
   # Testing hooks
-  defmodule System.Wrapper do
+  defmodule Wrapper do
     defmodule API do
       @callback get_env(String.t(), String.t() | nil) :: String.t() | nil
     end
@@ -70,7 +70,7 @@ defmodule Runtime.Config.Helper do
       System.get_env(varname, default)
     end
   end
-  @system_module Application.get_env(:runtime_config, :helper_system, System.Wrapper)
+  @system_module Application.get_env(:runtime_config, :helper_system, Wrapper)
 
   @doc """
 

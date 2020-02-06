@@ -8,4 +8,4 @@ config :runtime_config,
 
 # Mox modules to mock (should only be in test.exs)
 config :runtime_config,
-  helper_system: Runtime.Config.Helper.System.Wrapper.Mock
+  helper_system: Runtime.Config.Helper.Wrapper.Mock
