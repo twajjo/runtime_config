@@ -5,7 +5,7 @@ defmodule Runtime.Config.Helper.Test do
 
   import Mox
 
-  @system_mock Runtime.Config.Helper.System.Wrapper.Mock
+  @system_mock Runtime.Config.Helper.Wrapper.Mock
 
   alias Runtime.Config.Helper
 
@@ -21,79 +21,79 @@ defmodule Runtime.Config.Helper.Test do
 
   describe "get_env/2" do
     test "gets a string by default" do
-      expect(@system_mock, :get_env, 1, fn _ -> "string_val" end)
+      expect(@system_mock, :get_env, 1, fn _,_ -> "string_val" end)
       assert(Helper.get_env("STRING_VAR") == "string_val")
     end
 
     test "supports type :string" do
-      expect(@system_mock, :get_env, 1, fn _ -> "string_val" end)
+      expect(@system_mock, :get_env, 1, fn _,_ -> "string_val" end)
       assert(Helper.get_env("STRING_VAR", type: :string) == "string_val")
     end
 
     test "supports type :integer" do
-      expect(@system_mock, :get_env, 1, fn _ -> "23" end)
+      expect(@system_mock, :get_env, 1, fn _,_ -> "23" end)
       assert(Helper.get_env("INTEGER_VAR", type: :integer) == 23)
     end
 
     test "supports type :float" do
-      expect(@system_mock, :get_env, 1, fn _ -> "3.14" end)
+      expect(@system_mock, :get_env, 1, fn _,_ -> "3.14" end)
       assert(Helper.get_env("FLOAT_VAR", type: :float) == 3.14)
     end
 
     test "supports type :boolean" do
-      expect(@system_mock, :get_env, 1, fn _ -> "true" end)
+      expect(@system_mock, :get_env, 1, fn _,_ -> "true" end)
       assert(Helper.get_env("BOOLEAN_VAR", type: :boolean) == true)
     end
 
     test "supports type :atom" do
-      expect(@system_mock, :get_env, 1, fn _ -> "atom" end)
+      expect(@system_mock, :get_env, 1, fn _,_ -> "atom" end)
       assert(Helper.get_env("ATOM_VAR", type: :atom) == :atom)
     end
 
     test "supports type :module" do
-      expect(@system_mock, :get_env, 1, fn _ -> "Elixir.Runtime.Config.Helpers" end)
-      assert(Helper.get_env("MODULE_VAR", type: :module) == Runtime.Config.Helpers)
+      expect(@system_mock, :get_env, 1, fn _,_ -> "Elixir.Runtime.Config.Helper" end)
+      assert(Helper.get_env("MODULE_VAR", type: :module) == Runtime.Config.Helper)
     end
 
     test "supports type :charlist" do
-      expect(@system_mock, :get_env, 1, fn _ -> "Mott the Hoople" end)
+      expect(@system_mock, :get_env, 1, fn _,_ -> "Mott the Hoople" end)
       assert(Helper.get_env("CHARLIST_VAR", type: :charlist) == 'Mott the Hoople')
     end
 
     test "supports type :list" do
-      expect(@system_mock, :get_env, 2, fn _ -> "fish,cut,bait" end)
+      expect(@system_mock, :get_env, 2, fn _,_ -> "fish,cut,bait" end)
       assert(Helper.get_env("LIST_VAR", type: :list) == ["fish", "cut", "bait"])
       assert(Helper.get_env("LIST_VAR", type: :list, subtype: :string) == ["fish", "cut", "bait"])
     end
 
     test "supports type list of atoms" do
-      expect(@system_mock, :get_env, 1, fn _ -> "fish,cut,bait" end)
+      expect(@system_mock, :get_env, 1, fn _,_ -> "fish,cut,bait" end)
       assert(Helper.get_env("LIST_VAR", type: :list, subtype: :atom) == [:fish, :cut, :bait])
     end
 
     test "supports type list of integers" do
-      expect(@system_mock, :get_env, 1, fn _ -> "1,2,3" end)
-      assert(Helper.get_env("LIST_VAR", type: :int_list) == [1, 2, 3])
+      expect(@system_mock, :get_env, 1, fn _,_ -> "1,2,3" end)
+      assert(Helper.get_env("LIST_VAR", type: :list, subtype: :integer) == [1, 2, 3])
     end
 
     test "supports type :tuple" do
-      expect(@system_mock, :get_env, 2, fn _ -> "fish,cut,bait" end)
+      expect(@system_mock, :get_env, 2, fn _,_ -> "fish,cut,bait" end)
       assert(Helper.get_env("TUPLE_VAR", type: :tuple) == {"fish", "cut", "bait"})
       assert(Helper.get_env("TUPLE_VAR", type: :tuple, subtype: :string) == {"fish", "cut", "bait"})
     end
 
-    test "supports type :atom_tuple" do
-      expect(@system_mock, :get_env, 1, fn _ -> "fish,cut,bait" end)
+    test "supports type :tuple of all :atom entries" do
+      expect(@system_mock, :get_env, 1, fn _,_ -> "fish,cut,bait" end)
       assert(Helper.get_env("TUPLE_VAR", type: :tuple, subtype: :atom) == {:fish, :cut, :bait})
     end
 
-    test "supports type :int_tuple" do
-      expect(@system_mock, :get_env, 1, fn _ -> "1,2,3" end)
+    test "supports type :tuple of all :integer entries" do
+      expect(@system_mock, :get_env, 1, fn _,_ -> "1,2,3" end)
       assert(Helper.get_env("TUPLE_VAR", type: :tuple, subtype: :integer) == {1, 2, 3})
     end
 
     test "supports default values for unset variables" do
-      expect(@system_mock, :get_env, 6, fn _ -> nil end)
+      expect(@system_mock, :get_env, 8, fn _,_ -> nil end)
       assert(Helper.get_env("INTEGER_VAR", default: 17, type: :integer) == 17)
       assert(Helper.get_env("FLOAT_VAR", default: 98.6, type: :float) == 98.6)
       assert(Helper.get_env("BOOLEAN_VAR", default: true, type: :boolean) == true)
@@ -105,41 +105,43 @@ defmodule Runtime.Config.Helper.Test do
     end
 
     test "supports validation :in_set" do
-      expect(@system_mock, :get_env, 4, fn _ -> "2" end)
+      expect(@system_mock, :get_env, 4, fn _,_ -> "2" end)
       assert(Helper.get_env("STRING_VAR", in_set: ~w(1 2 3)) == "2")
       assert({:error, _} = Helper.get_env("STRING_VAR", in_set: ~w(nope not in there)))
       assert(Helper.get_env("INTEGER_VAR", type: :integer, in_set: [1, 2, 3]) == 2)
       assert({:error, _} = Helper.get_env("INTEGER_VAR", type: :integer, in_set: [1, 0, 3]))
 
-      expect(@system_mock, :get_env, 2, fn _ -> "2.0" end)
+      expect(@system_mock, :get_env, 2, fn _,_ -> "2.0" end)
       assert(Helper.get_env("FLOAT_VAR", type: :float, in_set: [1.0, 2.0, 3.0]) == 2.0)
       assert({:error, _} = Helper.get_env("FLOAT_VAR", type: :float, in_set: [1.0, 0.0, 3.0]))
     end
 
     test "supports validation :in_range" do
-      expect(@system_mock, :get_env, 2, fn _ -> "23" end)
+      expect(@system_mock, :get_env, 2, fn _,_ -> "23" end)
       assert(Helper.get_env("INTEGER_VAR", type: :integer, in_range: 1..100) == 23)
       assert({:error, _} = Helper.get_env("INTEGER_VAR", type: :integer, in_range: 50..100))
     end
 
     test "supports validation :regex" do
-      expect(@system_mock, :get_env, 2, fn _ -> "string_val" end)
+      expect(@system_mock, :get_env, 2, fn _,_ -> "string_val" end)
       assert(Helper.get_env("STRING_VAR", type: :string, regex: ~r/^.*_val$/) == "string_val")
       assert({:error, _} = Helper.get_env("STRING_VAR", type: :string, regex: ~r/^.*_flurshinger$/))
     end
 
     test "supports custom validation" do
-      expect(@system_mock, :get_env, 2, fn _ -> "string_val" end)
+      expect(@system_mock, :get_env, 2, fn _,_ -> "string_val" end)
       assert(Helper.get_env("STRING_VAR", custom: {CustomValidator, :valid}) == "string_val")
       assert({:error, _} = Helper.get_env("STRING_VAR", custom: {CustomValidator, :invalid}))
     end
 
     test "returns nil if no default given, variable is unset in the environment and no validations are specified" do
-      expect(@system_mock, :get_env, 1, fn _ -> nil end)
+      expect(@system_mock, :get_env, 1, fn _,_ -> nil end)
       assert(is_nil(Helper.get_env("UNDEFINED_VAR")))
     end
   end
 
+  # Test these obliquely through get_env not directly.
+@supress """
   describe "determine_type/1" do
     test "type defaults to string" do
       assert(Helper.determine_type([]) == :string)
@@ -163,7 +165,7 @@ defmodule Runtime.Config.Helper.Test do
     end
 
     test "is module if default value is a module" do
-      assert(Helper.determine_type(default: Application.Config.Helper) == :module)
+      assert(Helper.determine_type(default: Runtime.Config.Helper) == :module)
     end
 
     test "is list if default value is a list" do
@@ -181,4 +183,5 @@ defmodule Runtime.Config.Helper.Test do
       assert(Helper.determine_type(in_set: [1.1, 1.2]) == :float)
     end
   end
+"""
 end
